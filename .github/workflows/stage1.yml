@@ -54,7 +54,7 @@ jobs:
         MIRRORS='http://distfiles.gentoo.org/releases/amd64/autobuilds/'
         FILENAME=`curl -L $MIRRORS/latest-stage3.txt  2>/dev/null |grep ^[0-9]|awk '{if (NR==1) {print $1}}'`
         FILEURL="$MIRRORS/$FILENAME"
-        cd /mnt/gentoo ;sudo curl -LO  $FILEURL
+        cd /mnt/gentoo ;sudo wget -c  $FILEURL
         sudo tar xvJpf stage3-amd64-*.tar.xz --xattrs-include='*.*' --numeric-owner
         cd; git clone https://github.com/slmoby/gentoo-ci/
         sudo cp ~/gentoo-ci/dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
@@ -105,6 +105,7 @@ jobs:
         cd ;git clone https://github.com/slmoby/gentoo-ci
         rm ~/.bashrc ; cp gentoo-ci/.bashrc .bashrc
         env-update && source /etc/profile && export PS1="(chroot) $PS1"
+        eselect profile set 28
     - name: Build Stage
       run: |
         set -x
