@@ -77,15 +77,18 @@ jobs:
         sudo test -L /dev/shm &&  sudo rm /dev/shm &&  sudo mkdir /dev/shm
         sudo mount --types tmpfs --options nosuid,nodev,noexec shm /dev/shm
         sudo chmod 1777 /dev/shm
-    - name: build stage1
+    - name: enable tmpfs for portage
       run: |
         set -x
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;mount -a"
-    - name: rewrite gentoo.conf
+    - name: stable portage tree
       run: |
         set -x 
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;mkdir -pv /var/db/repos/gentoo; "
         sudo chroot /mnt/gentoo /bin/bash -c "wget -qO- https://github.com/gentoo-mirror/gentoo/archive/stable.tar.gz | tar zx --directory /var/db/repos/gentoo --strip-component=1"
+    - name: Install git & use git sync portage tree
+      run: |
+        set -x
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;emerge -v  dev-vcs/git" 
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;cd ;git clone https://github.com/slmoby/gentoo-ci"
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;rm -f /etc/portage/repos.conf/gentoo.conf"   
