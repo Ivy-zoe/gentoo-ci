@@ -1,0 +1,20 @@
+--- bootstrap.sh	2020-04-23 17:36:40.473032420 +0800
++++ /var/db/repos/gentoo/scripts/bootstrap.sh	2020-04-06 13:13:40.009220110 +0800
+@@ -273,7 +273,7 @@
+ [[ -z ${myBINUTILS}   ]] && myBINUTILS="sys-devel/binutils"
+ [[ -z ${myGCC}        ]] && myGCC="sys-devel/gcc"
+ [[ -z ${myGETTEXT}    ]] && myGETTEXT="sys-devel/gettext"
+-[[ -z ${myLIBC}       ]] && myLIBC="$(portageq expand_virtual / virtual/libc)"
++[[ -z ${myLIBC}       ]] ; myLIBC="$(portageq expand_virtual / virtual/libc)"
+ [[ -z ${myTEXINFO}    ]] && myTEXINFO="sys-apps/texinfo"
+ [[ -z ${myZLIB}       ]] && myZLIB="sys-libs/zlib"
+ [[ -z ${myNCURSES}    ]] && myNCURSES="sys-libs/ncurses"
+@@ -320,7 +320,7 @@
+ 	echo -------------------------------------------------------------------------------
+ 	set_bootstrap_stage 2
+ fi
+-export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE}"
++export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE} openmp"
+
+ # We can't unmerge headers which may or may not exist yet. If your
+ # trying to use nptl, it may be needed to flush out any old headers

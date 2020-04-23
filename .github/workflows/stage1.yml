@@ -61,7 +61,7 @@ jobs:
         sudo mkdir -pv /mnt/gentoo/etc/portage/repos.conf
         sudo cp -v ~/gentoo-ci/dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
         
-    - name: Chroot
+    - name: Chroot Config
       run: |
         set -x
         sudo cp -v -L /etc/resolv.conf /mnt/gentoo/etc/
@@ -76,25 +76,12 @@ jobs:
         sudo chroot /mnt/gentoo /bin/bash
         source /etc/profile
         export PS1="(chroot) $PS1"
-    - name: Rsync Portage Tree & Install Git
-      run: |
-        set -x
-        sudo chroot /mnt/gentoo /bin/bash
-        source /etc/profile
-        export PS1="(chroot) $PS1"        
         emaint sync --auto
         emerge -v  dev-vcs/git
         rm -rf  /var/db/repos/gentoo
         cd ;git clone https://github.com/slmoby/gentoo-ci
         rm -f /etc/portage/repos.conf/gentoo.conf
         cp gentoo-ci/gentoo.conf /etc/portage/repos.conf/gentoo.conf
-
-    - name: System Settings
-      run: |
-        set -x
-        sudo chroot /mnt/gentoo /bin/bash
-        source /etc/profile
-        export PS1="(chroot) $PS1"      
         echo "Asia/Shanghai" > /etc/timezone
         eselect news purge
         emerge -v --config sys-libs/timezone-data
@@ -102,17 +89,9 @@ jobs:
         echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gent
         locale-gen
         eselect locale set  3
-        cd ;git clone https://github.com/slmoby/gentoo-ci
-        rm ~/.bashrc ; cp gentoo-ci/.bashrc .bashrc
-        env-update && source /etc/profile && export PS1="(chroot) $PS1"
-        eselect profile set 28
-    - name: Build Stage
-      run: |
-        set -x
-        sudo chroot /mnt/gentoo /bin/bash
-        source /etc/profile
-        export PS1="(chroot) $PS1"        
+        patch -b <~/gentoo-ci/script/1.patch
         bash ~/gentoo-ci/script/bootstrap.sh
+
     - name: Make the product
       run: |
         exit
