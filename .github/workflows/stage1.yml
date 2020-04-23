@@ -64,6 +64,7 @@ jobs:
         sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/env /mnt/gentoo/etc/portage
         sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/package.env/ /mnt/gentoo/etc/portage
         sudo cp -v ~/gentoo-ci/dotfiles/etc/fstab /mnt/gentoo/etc/fstab
+        sudo cp -v ~/gentoo-ci/script/bootstrap.sh /mnt/gentoo/root/bootstrap.sh
     - name: chroot environment
       run: |
         set -x
@@ -95,8 +96,7 @@ jobs:
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gent"
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;locale-gen"
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;eselect locale set  3"
-        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;patch -b <~/gentoo-ci/script/1.patch"
-        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;bash ~/gentoo-ci/script/bootstrap.sh"
+        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;cd - ;bash bootstrap.sh"
 
 
     - name: Make the product
