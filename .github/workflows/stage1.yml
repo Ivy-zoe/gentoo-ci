@@ -51,7 +51,7 @@ jobs:
     - name: Download and Install Stage3 Files
       run: |
         set -x
-        MIRRORS='http://distfiles.gentoo.org/releases/amd64/autobuilds/'
+        MIRRORS='https://bouncer.gentoo.org/fetch/root/all/releases/amd64/autobuilds'
         FILENAME=`curl -L $MIRRORS/latest-stage3.txt  2>/dev/null |grep ^[0-9]|awk '{if (NR==1) {print $1}}'`
         FILEURL="$MIRRORS/$FILENAME"
         cd /mnt/gentoo ;sudo wget -c  $FILEURL
