@@ -1,0 +1,1 @@
+tmpfs /var/tmp/portage tmpfs rw,nosuid,noatime,nodev,size=10G,mode=775,uid=portage,gid=portage,x-mount.mkdir=775 0 0

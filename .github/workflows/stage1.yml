@@ -63,6 +63,7 @@ jobs:
         sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/package.use/ /mnt/gentoo/etc/portage
         sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/env /mnt/gentoo/etc/portage
         sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/package.env/ /mnt/gentoo/etc/portage
+        sudo cp -v ~/gentoo-ci/dotfiles/etc/fstab /mnt/gentoo/etc/fstab
     - name: chroot environment
       run: |
         set -x
@@ -78,6 +79,7 @@ jobs:
     - name: build stage1
       run: |
         set -x
+        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;mount -a"
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;mkdir -pv /var/db/repos/gentoo; "
         sudo chroot /mnt/gentoo /bin/bash -c "wget -qO- https://github.com/gentoo-mirror/gentoo/archive/stable.tar.gz | tar zx --directory /var/db/repos/gentoo --strip-component=1"
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;emerge -v  dev-vcs/git"        
