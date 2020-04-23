@@ -79,6 +79,9 @@ jobs:
     - name: Rsync Portage Tree & Install Git
       run: |
         set -x
+        sudo chroot /mnt/gentoo /bin/bash
+        source /etc/profile
+        export PS1="(chroot) $PS1"        
         emaint sync --auto
         emerge -v  dev-vcs/git
         rm -rf  /var/db/repos/gentoo
@@ -89,7 +92,9 @@ jobs:
     - name: System Settings
       run: |
         set -x
-      
+        sudo chroot /mnt/gentoo /bin/bash
+        source /etc/profile
+        export PS1="(chroot) $PS1"      
         echo "Asia/Shanghai" > /etc/timezone
         eselect news purge
         emerge -v --config sys-libs/timezone-data
@@ -103,6 +108,9 @@ jobs:
     - name: Build Stage
       run: |
         set -x
+        sudo chroot /mnt/gentoo /bin/bash
+        source /etc/profile
+        export PS1="(chroot) $PS1"        
         bash ~/gentoo-ci/script/bootstrap.sh
     - name: Make the product
       run: |
@@ -110,7 +118,7 @@ jobs:
         cd
         mkdir -pv output
         mkdir -pv tmp
-        rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} ./tmp
+        sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} ./tmp
         cd ./tmp;sudo tar -jcvf ../output/stage1.tar.bz2 .
     - name: Stage1  packages
       uses: actions/upload-artifact@master
