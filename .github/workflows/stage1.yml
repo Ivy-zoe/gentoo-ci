@@ -1,0 +1,139 @@
+name: Gentoo Stage1 For x86_64
+
+#on:
+#  schedule:
+#  - cron: ""
+
+on: [push]
+
+jobs:
+  build:
+  runs-on: ubuntu-18.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+
+    - name: Clean up disk space
+      run: |
+        set -x
+        sudo /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        docker rmi $(docker images -q)
+        sudo apt-get -y purge \
+          azure-cli \
+          ghc* \
+          zulu* \
+          hhvm \
+          llvm* \
+          firefox \
+          google* \
+          dotnet* \
+          powershell \
+          openjdk* \
+          mysql* \
+          php*
+        sudo apt autoremove --purge -y
+
+
+   - name: Initialization environment
+      run: |
+        set -x
+        [ -f sources.list ] && (
+          sudo cp -rf sources.list /etc/apt/sources.list
+          sudo rm -rf /etc/apt/sources.list.d/* /var/lib/apt/lists/*
+          sudo apt-get clean
+        )
+        sudo apt-get update
+        sudo apt install wget curl rsync -y
+        sudo apt autoremove --purge -y
+        sudo apt-get clean
+        sudo timedatectl set-timezone Asia/Shanghai
+        sudo mkdir -pv /mnt/gentoo
+   - name: Download and Install Stage3 Files
+      run: |
+        set -x
+        
+          MIRRORS='http://distfiles.gentoo.org/releases/amd64/autobuilds/'
+          FILENAME=`curl -L $MIRRORS/latest-stage3.txt  2>/dev/null |grep ^[0-9]|awk '{if (NR==1) {print $1}}'`
+          FILEURL="$MIRRORS/$FILENAME"
+          cd /mnt/gentoo ;sudo curl -LO  $FILEURL
+          sudo tar xvJpf stage3-amd64-*.tar.xz --xattrs-include='*.*' --numeric-owner
+          sudo cp ./dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
+          sudo mkdir -pv /mnt/gentoo/etc/portage/repos.conf;sudo cp -v ./dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
+        
+   - name: Chroot
+      run: |
+        set -x
+          sudo cp -v -L /etc/resolv.conf /mnt/gentoo/etc/
+          sudo mount -v -t proc none /mnt/gentoo/proc
+          sudo mount -v --rbind /sys /mnt/gentoo/sys
+          sudo mount -v --rbind /dev /mnt/gentoo/dev
+          sudo mount -v --make-rslave /mnt/gentoo/sys
+          sudo mount -v --make-rslave /mnt/gentoo/dev
+          sudo test -L /dev/shm && sudo rm /dev/shm && sudo mkdir /dev/shm
+          sudo mount --types tmpfs --options nosuid,nodev,noexec shm /dev/shm
+          sudo chmod 1777 /dev/shm
+          sudo chroot /mnt/gentoo /bin/bash
+          source /etc/profile
+          export PS1="(chroot) $PS1"
+   - name: Rsync Portage Tree & Install Git
+      run: |
+        set -x
+        
+          emaint sync --auto
+          emerge -v  dev-vcs/git
+          rm -rf  /var/db/repos/gentoo
+          cat > /etc/portage/repos.conf/gentoo.conf <<EOF
+[gentoo]
+location = /var/db/repos/gentoo
+sync-type = git
+sync-uri = https://github.com/gentoo-mirror/gentoo.git
+auto-sync = yes
+EOF 
+          emaint sync --auto
+          eselect profile set 28
+        
+   - name: System Settings
+      run: |
+      set -x
+      
+      echo "Asia/Shanghai" > /etc/timezone
+      eselect news purge
+      emerge -v --config sys-libs/timezone-data
+      echo "en_US.UTF-8 UTF-8
+zh_CN.UTF-8 UTF-8" >> /etc/locale.gen
+      locale-gen
+      eselect locale set  3
+      env-update && source /etc/profile && export PS1="(chroot) $PS1"
+      cat >> /root/.bashrc<<EOF
+      export NUMCPUS=$(nproc)
+      export NUMCPUSPLUSONE=$(( NUMCPUS + 1 ))
+      export MAKEOPTS="-j${NUMCPUSPLUSONE} -l${NUMCPUS}"
+      export EMERGE_DEFAULT_OPTS="--jobs=${NUMCPUSPLUSONE} --load-average=${NUMCPUS}" 
+      EOF
+      
+      
+
+   - name: Build Stage 1 Files
+      run: |
+        set -x
+        cd /var/db/repos/gentoo/script;curl -LO https://raw.githubusercontent.com/slmoby/gentoo-ci/master/script/bootstrap.sh
+        bash /var/db/repos/gentoo/script/bootstrap.sh
+    - name: Make the product
+      run: |
+        exit
+        cd
+        mkdir -pv output
+        HOME_DIR=`pwd`
+        mkdir -p ${HOME_DIR}/stage1  
+        sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $HOME_DIR/stage1
+        cd $HOME_DIR/stage1;sudo tar -jcvf ../stage1.tar.bz2 .
+        cd ; mv  stage1.tar.bz2 output
+
+  
+    - name: Stage1  packages
+      uses: actions/upload-artifact@master
+      with:
+        name: Stage1 Files
+        path: output/stage1.tar.bz2
