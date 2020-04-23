@@ -44,24 +44,7 @@ jobs:
           sudo apt-get clean
         )
         sudo apt-get update
-        sudo apt-get install rsync 
-
-        sudo apt autoremove --purge -y
-        sudo apt-get clean
-        sudo timedatectl set-timezone Asia/Shanghai
-        sudo mkdir -pv /mnt/gentoo
-
-
-    - name: Initialization environment
-      run: |
-        set -x
-        [ -f sources.list ] && (
-          sudo cp -rf sources.list /etc/apt/sources.list
-          sudo rm -rf /etc/apt/sources.list.d/* /var/lib/apt/lists/*
-          sudo apt-get clean
-        )
-        sudo apt-get update
-        sudo apt install wget curl rsync git -y
+        sudo apt install wget curl rsync xz-utils tar git -y
         sudo apt autoremove --purge -y
         sudo apt-get clean
         sudo timedatectl set-timezone Asia/Shanghai
