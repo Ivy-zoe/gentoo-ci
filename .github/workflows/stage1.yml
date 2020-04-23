@@ -61,7 +61,7 @@ jobs:
           sudo apt-get clean
         )
         sudo apt-get update
-        sudo apt install wget curl rsync -y
+        sudo apt install wget curl rsync git -y
         sudo apt autoremove --purge -y
         sudo apt-get clean
         sudo timedatectl set-timezone Asia/Shanghai
@@ -75,8 +75,9 @@ jobs:
           FILEURL="$MIRRORS/$FILENAME"
           cd /mnt/gentoo ;sudo curl -LO  $FILEURL
           sudo tar xvJpf stage3-amd64-*.tar.xz --xattrs-include='*.*' --numeric-owner
-          sudo cp ./dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
-          sudo mkdir -pv /mnt/gentoo/etc/portage/repos.conf;sudo cp -v ./dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
+          cd; git clone https://github.com/slmoby/gentoo-ci/
+          sudo cp ~/gentoo-ci/dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
+          sudo mkdir -pv /mnt/gentoo/etc/portage/repos.conf;sudo cp -v ~/gentoo-ci/dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
         
     - name: Chroot
       run: |
@@ -96,10 +97,12 @@ jobs:
     - name: Rsync Portage Tree & Install Git
       run: |
         set -x
-        
           emaint sync --auto
           emerge -v  dev-vcs/git
           rm -rf  /var/db/repos/gentoo
+          cd ;git clone https://github.com/slmoby/gentoo-ci
+          rm -f /etc/portage/repos.conf/gentoo.conf
+          cp gentoo-ci/gentoo.conf /etc/portage/repos.conf/gentoo.conf
 
     - name: System Settings
       run: |
@@ -112,14 +115,13 @@ jobs:
         echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gent
         locale-gen
         eselect locale set  3
+        cd ;git clone https://github.com/slmoby/gentoo-ci
+        rm ~/.bashrc ; cp gentoo-ci/.bashrc .bashrc
         env-update && source /etc/profile && export PS1="(chroot) $PS1"
-        cd ~ ; rm -f .bashrc ;curl -LO https://raw.githubusercontent.com/slmoby/gentoo-ci/master/dotfiles/.bashrc
-
     - name: Build Stage
       run: |
         set -x
-        cd /var/db/repos/gentoo/script;curl -LO https://raw.githubusercontent.com/slmoby/gentoo-ci/master/script/bootstrap.sh
-        bash /var/db/repos/gentoo/script/bootstrap.sh
+        bash ~/gentoo-ci/script/bootstrap.sh
     - name: Make the product
       run: |
         exit
@@ -130,8 +132,6 @@ jobs:
         sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $HOME_DIR/stage1
         cd $HOME_DIR/stage1;sudo tar -jcvf ../stage1.tar.bz2 .
         cd ; mv  stage1.tar.bz2 output
-
-  
     - name: Stage1  packages
       uses: actions/upload-artifact@master
       with:
