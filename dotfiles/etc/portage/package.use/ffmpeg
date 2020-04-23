@@ -1,0 +1,2 @@
+media-video/ffmpeg alsa X encode  openh264 pulseaudio x265 xcb sdl opengl theora mp3  encode libdrm v4l x264 opus
+media-plugins/alsa-plugins ffmpeg pulseaudio
