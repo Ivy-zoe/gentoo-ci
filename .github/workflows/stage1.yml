@@ -104,11 +104,15 @@ jobs:
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;echo "Asia/Shanghai" > /etc/timezone"
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;emerge -v --config sys-libs/timezone-data"
     - name: locale
+      run: | 
+        set -x
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen"
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gent"
         sudo chroot /mnt/gentoo /bin/bash -c  "source /etc/profile;locale-gen"
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;eselect locale set  3"
     - name: bootstrap stage1
+      run: |
+        set -x
         sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;cd  ;bash bootstrap.sh"
 
 
