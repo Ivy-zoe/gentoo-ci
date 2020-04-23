@@ -14,11 +14,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
-
     - name: Clean up disk space
       run: |
         set -x
-        sudo /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo swapoff /swapfile
+        sudo rm -rf /swapfile /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         docker rmi $(docker images -q)
         sudo apt-get -y purge \
           azure-cli \
@@ -35,8 +35,24 @@ jobs:
           php*
         sudo apt autoremove --purge -y
 
+    - name: Initialization environment
+      run: |
+        set -x
+        [ -f sources.list ] && (
+          sudo cp -rf sources.list /etc/apt/sources.list
+          sudo rm -rf /etc/apt/sources.list.d/* /var/lib/apt/lists/*
+          sudo apt-get clean
+        )
+        sudo apt-get update
+        sudo apt-get install rsync 
 
-   - name: Initialization environment
+        sudo apt autoremove --purge -y
+        sudo apt-get clean
+        sudo timedatectl set-timezone Asia/Shanghai
+        sudo mkdir -pv /mnt/gentoo
+
+
+    - name: Initialization environment
       run: |
         set -x
         [ -f sources.list ] && (
@@ -50,7 +66,7 @@ jobs:
         sudo apt-get clean
         sudo timedatectl set-timezone Asia/Shanghai
         sudo mkdir -pv /mnt/gentoo
-   - name: Download and Install Stage3 Files
+    - name: Download and Install Stage3 Files
       run: |
         set -x
         
@@ -62,7 +78,7 @@ jobs:
           sudo cp ./dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
           sudo mkdir -pv /mnt/gentoo/etc/portage/repos.conf;sudo cp -v ./dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
         
-   - name: Chroot
+    - name: Chroot
       run: |
         set -x
           sudo cp -v -L /etc/resolv.conf /mnt/gentoo/etc/
@@ -77,45 +93,29 @@ jobs:
           sudo chroot /mnt/gentoo /bin/bash
           source /etc/profile
           export PS1="(chroot) $PS1"
-   - name: Rsync Portage Tree & Install Git
+    - name: Rsync Portage Tree & Install Git
       run: |
         set -x
         
           emaint sync --auto
           emerge -v  dev-vcs/git
           rm -rf  /var/db/repos/gentoo
-          cat > /etc/portage/repos.conf/gentoo.conf <<EOF
-[gentoo]
-location = /var/db/repos/gentoo
-sync-type = git
-sync-uri = https://github.com/gentoo-mirror/gentoo.git
-auto-sync = yes
-EOF 
-          emaint sync --auto
-          eselect profile set 28
-        
-   - name: System Settings
-      run: |
-      set -x
-      
-      echo "Asia/Shanghai" > /etc/timezone
-      eselect news purge
-      emerge -v --config sys-libs/timezone-data
-      echo "en_US.UTF-8 UTF-8
-zh_CN.UTF-8 UTF-8" >> /etc/locale.gen
-      locale-gen
-      eselect locale set  3
-      env-update && source /etc/profile && export PS1="(chroot) $PS1"
-      cat >> /root/.bashrc<<EOF
-      export NUMCPUS=$(nproc)
-      export NUMCPUSPLUSONE=$(( NUMCPUS + 1 ))
-      export MAKEOPTS="-j${NUMCPUSPLUSONE} -l${NUMCPUS}"
-      export EMERGE_DEFAULT_OPTS="--jobs=${NUMCPUSPLUSONE} --load-average=${NUMCPUS}" 
-      EOF
-      
-      
 
-   - name: Build Stage 1 Files
+    - name: System Settings
+      run: |
+        set -x
+      
+        echo "Asia/Shanghai" > /etc/timezone
+        eselect news purge
+        emerge -v --config sys-libs/timezone-data
+        echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+        echo "zh_CN.UTF-8 UTF-8" >> /etc/locale.gent
+        locale-gen
+        eselect locale set  3
+        env-update && source /etc/profile && export PS1="(chroot) $PS1"
+        cd ~ ; rm -f .bashrc ;curl -LO https://raw.githubusercontent.com/slmoby/gentoo-ci/master/dotfiles/.bashrc
+
+    - name: Build Stage
       run: |
         set -x
         cd /var/db/repos/gentoo/script;curl -LO https://raw.githubusercontent.com/slmoby/gentoo-ci/master/script/bootstrap.sh
