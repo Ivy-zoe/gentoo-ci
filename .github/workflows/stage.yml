@@ -118,17 +118,13 @@ jobs:
         pwd
         cd ;cd tmp;sudo tar -jcvf ../output/stage/stage1.tar.bz2 .;cd
         ls;ls output/stage
+        mkdir -pv work/gentoo-ci/gentoo-ci/output/stage/
+        cp -v output/stage/stage1.tar.bz2 work/gentoo-ci/gentoo-ci/output/stage/
 
     - name: Stage1  packages
       uses: actions/upload-artifact@master
       with:
         name: Stage1 Files
-        run: |
-          set -x
-          cd
-          ls
-          ls output/
-          ls output/stage
         path: output/stage/stage1.tar.bz2        
 
 
