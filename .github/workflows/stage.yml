@@ -109,17 +109,23 @@ jobs:
 
 
     - name: Make the product
-      working-directory: ./gentoo-ci
       run: |
-        mkdir -pv output
-        mkdir -pv tmp        
-        sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} /mnt/gentoo/ ./tmp
-        cd ./tmp;sudo tar -jcvf ../output/stage1.tar.bz2 .
+        cd; pwd
+        mkdir -pv output/stage
+        mkdir -pv tmp
+        cd /mnt/gentoo ;sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} . ~/tmp/
+        ls -al ~/
+        pwd
+        cd ./tmp;sudo tar -jcvf ../output/stage/stage1.tar.bz2 .
     - name: Stage1  packages
       uses: actions/upload-artifact@master
       with:
         name: Stage1 Files
-        working-directory: ./gentoo-ci
-        path: output/
+        path: output/stage/stage1.tar.bz2        
+    - name: Stage1  packages
+      uses: actions/upload-artifact@master
+      with:
+        name: Stage1 Files dir
+        path: output/stage/
 
     
