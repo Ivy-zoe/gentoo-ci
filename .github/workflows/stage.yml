@@ -109,8 +109,8 @@ jobs:
 
 
     - name: Make the product
+      working-directory: ./gentoo-ci
       run: |
-        cd
         mkdir -pv output
         mkdir -pv tmp
         sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} ./tmp
@@ -119,6 +119,7 @@ jobs:
       uses: actions/upload-artifact@master
       with:
         name: Stage1 Files
+        working-directory: ./gentoo-ci
         path: output/stage1.tar.bz2
 
     
