@@ -125,7 +125,10 @@ jobs:
         name: Stage1 Files
         run: |
           set -x
-          cd;
+          cd
+          ls
+          ls output/
+          ls output/stage
         path: output/stage/stage1.tar.bz2        
 
 
