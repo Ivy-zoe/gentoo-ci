@@ -7,7 +7,7 @@ name: Gentoo Stage1 For x86_64
 on: [push]
 
 jobs:
-  build:
+  job1:
     runs-on: ubuntu-latest
 
     steps:
@@ -105,7 +105,7 @@ jobs:
     - name: bootstrap stage1
       run: |
         set -x
-        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;cd  ;bash bootstrap.sh"
+        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;cd /root  ;bash bootstrap.sh"
 
 
     - name: Make the product
@@ -120,3 +120,5 @@ jobs:
       with:
         name: Stage1 Files
         path: output/stage1.tar.bz2
+
+    
