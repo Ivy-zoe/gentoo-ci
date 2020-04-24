@@ -114,18 +114,19 @@ jobs:
         mkdir -pv output/stage
         mkdir -pv tmp ;sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} /mnt/gentoo/* ./tmp/
         ls -al ~/
-        ls -al ~/tmp/        
+        ls  ~/tmp/        
         pwd
-        cd ;cd tmp;sudo tar -jcvf ../output/stage/stage1.tar.bz2 .
+        cd ;cd tmp;sudo tar -jcvf ../output/stage/stage1.tar.bz2 .;cd
+        ls;ls output/stage
+
     - name: Stage1  packages
       uses: actions/upload-artifact@master
       with:
         name: Stage1 Files
+        run: |
+          set -x
+          cd;
         path: output/stage/stage1.tar.bz2        
-    - name: Stage1  packages
-      uses: actions/upload-artifact@master
-      with:
-        name: Stage1 Files dir
-        path: output/stage/
+
 
     
