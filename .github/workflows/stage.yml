@@ -120,6 +120,6 @@ jobs:
       with:
         name: Stage1 Files
         working-directory: ./gentoo-ci
-        path: output/stage1.tar.bz2
+        path: output/
 
     
