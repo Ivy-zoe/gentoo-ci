@@ -1,4 +1,4 @@
-name: Gentoo Stage1 For x86_64
+name: Gentoo Stage4 For x86_64
 
 #on:
 #  schedule:
@@ -7,7 +7,7 @@ name: Gentoo Stage1 For x86_64
 on: [push]
 
 jobs:
-  job1:
+  stage1:
     runs-on: ubuntu-latest
 
     steps:
@@ -105,7 +105,7 @@ jobs:
     - name: bootstrap stage1
       run: |
         set -x
-        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;cd /root  ;bash bootstrap.sh"
+        sudo chroot /mnt/gentoo /bin/bash -c "source /etc/profile;cd /root ;ls ;bash bootstrap.sh"
 
 
     - name: Make the product
