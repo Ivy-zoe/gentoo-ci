@@ -112,8 +112,8 @@ jobs:
       working-directory: ./gentoo-ci
       run: |
         mkdir -pv output
-        mkdir -pv tmp
-        sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} ./tmp
+        mkdir -pv tmp        
+        sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} /mnt/gentoo/ ./tmp
         cd ./tmp;sudo tar -jcvf ../output/stage1.tar.bz2 .
     - name: Stage1  packages
       uses: actions/upload-artifact@master
