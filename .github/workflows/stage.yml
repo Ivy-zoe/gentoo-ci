@@ -56,15 +56,15 @@ jobs:
         FILEURL="$MIRRORS/$FILENAME"
         cd /mnt/gentoo ;sudo wget -c  $FILEURL
         sudo tar xvJpf stage3-amd64-*.tar.xz --xattrs-include='*.*' --numeric-owner
-        cd; git clone https://github.com/slmoby/gentoo-ci/
-        sudo cp ~/gentoo-ci/dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
+
+        sudo cp ./dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
         sudo mkdir -pv /mnt/gentoo/etc/portage/repos.conf
-        sudo cp -v ~/gentoo-ci/dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
-        sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/package.use/ /mnt/gentoo/etc/portage
-        sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/env /mnt/gentoo/etc/portage
-        sudo cp -rv ~/gentoo-ci/dotfiles/etc/portage/package.env/ /mnt/gentoo/etc/portage
-        sudo cp -v ~/gentoo-ci/dotfiles/etc/fstab /mnt/gentoo/etc/fstab
-        sudo cp -v ~/gentoo-ci/script/bootstrap.sh /mnt/gentoo/root/bootstrap.sh
+        sudo cp -v ./dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
+        sudo cp -rv ./dotfiles/etc/portage/package.use/ /mnt/gentoo/etc/portage
+        sudo cp -rv ./dotfiles/etc/portage/env /mnt/gentoo/etc/portage
+        sudo cp -rv ./dotfiles/etc/portage/package.env/ /mnt/gentoo/etc/portage
+        sudo cp -v ./dotfiles/etc/fstab /mnt/gentoo/etc/fstab
+        sudo cp -v ./script/bootstrap.sh /mnt/gentoo/root/bootstrap.sh
     - name: chroot environment
       run: |
         set -x
@@ -110,16 +110,12 @@ jobs:
 
     - name: Make the product
       run: |
-        cd; pwd
+        
         mkdir -pv output/stage
-        mkdir -pv tmp ;sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} /mnt/gentoo/* ./tmp/
-        ls -al ~/
-        ls  ~/tmp/        
+        mkdir -pv tmp ;sudo rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} /mnt/gentoo/* ./tmp/  
         pwd
-        cd ;cd tmp;sudo tar -jcvf ../output/stage/stage1.tar.bz2 .;cd
-        ls;ls output/stage
-        mkdir -pv work/gentoo-ci/gentoo-ci/output/stage/
-        cp -v output/stage/stage1.tar.bz2 work/gentoo-ci/gentoo-ci/output/stage/
+        mkdir -pv output/stage/
+        cd output/stage/ ;sudo tar -jcvf ./stage1.tar.bz2 /mnt/gentoo/* 
 
     - name: Stage1  packages
       uses: actions/upload-artifact@master
@@ -133,7 +129,7 @@ jobs:
     - name: Download stage1 result for stage1
       uses: actions/download-artifact@v1
       with:
-        name: homework
+        name: stage1.tar.bz2
     - shell: bash
       run: |
         pwd;ls -l;
