@@ -56,7 +56,7 @@ jobs:
         FILEURL="$MIRRORS/$FILENAME"
         cd /mnt/gentoo ;sudo wget -c  $FILEURL
         sudo tar xvJpf stage3-amd64-*.tar.xz --xattrs-include='*.*' --numeric-owner
-
+        cd ;pwd;ls -al ; cd gentoo-ci
         sudo cp ./dotfiles/etc/portage/make.conf /mnt/gentoo/etc/portage/make.conf
         sudo mkdir -pv /mnt/gentoo/etc/portage/repos.conf
         sudo cp -v ./dotfiles/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf
